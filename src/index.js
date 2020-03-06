@@ -1,8 +1,8 @@
 import React from "react";
 import classNames from "classnames";
-import {isBrowser} from "browser-or-node";
+import { isBrowser } from "browser-or-node";
 import prefix from "./prefixer";
-import {bool, func, number, object, string} from "prop-types";
+import { bool, func, number, object, string } from "prop-types";
 
 /**
  * if IE is <= 9
@@ -101,53 +101,71 @@ export class Animated extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const {isVisible} = this.props;
+    const { isVisible } = this.props;
     if (isVisible !== nextProps.isVisible) {
-      this.setState(this.getNewState({...this.props, ...nextProps}));
+      this.setState(this.getNewState({ ...this.props, ...nextProps }));
     }
   }
 
   getNewState = ({
-                   isVisible,
-                   animationIn,
-                   animationOut,
-                   animationInDuration,
-                   animationOutDuration,
-                   animationInDelay,
-                   animationOutDelay
-                 }) => isVisible ? ({
-    animation: animationIn,
-    duration: animationInDuration,
-    delay: animationInDelay
-  }) : ({
-    animation: animationOut,
-    duration: animationOutDuration,
-    delay: animationOutDelay
-  });
+    isVisible,
+    animationIn,
+    animationOut,
+    animationInDuration,
+    animationOutDuration,
+    animationInDelay,
+    animationOutDelay
+  }) =>
+    isVisible
+      ? {
+          animation: animationIn,
+          duration: animationInDuration,
+          delay: animationInDelay
+        }
+      : {
+          animation: animationOut,
+          duration: animationOutDuration,
+          delay: animationOutDelay
+        };
 
   render() {
-    const {children, style, isVisible, innerRef, className} = this.props;
-    const {animation, delay, duration} = this.state;
+    const {
+      children,
+      style,
+      isVisible,
+      innerRef,
+      className,
+      tagName
+    } = this.props;
+    const { animation, delay, duration } = this.state;
 
     const classes = classNames("animated", animation, className);
 
-    const backwardStyle = isLteIE9 || !animation ? {
-      opacity: isVisible ? 1 : 0,
-      transition: `opacity ${delay}ms`,
-    } : {};
+    const backwardStyle =
+      isLteIE9 || !animation
+        ? {
+            opacity: isVisible ? 1 : 0,
+            transition: `opacity ${delay}ms`
+          }
+        : {};
+
+    /* Added support for a custom tag */
+    const CustomTag = `${tagName}`;
 
     return (
-      <div className={classes}
-           ref={innerRef}
-           style={prefix({
-             animationDelay: `${delay}ms`,
-             animationDuration: `${duration}ms`,
-             pointerEvents: isVisible ? "all" : "none",
-             ...style,
-             ...backwardStyle
-           })}>
+      <CustomTag
+        className={classes}
+        ref={innerRef}
+        style={prefix({
+          animationDelay: `${delay}ms`,
+          animationDuration: `${duration}ms`,
+          pointerEvents: isVisible ? "all" : "none",
+          ...style,
+          ...backwardStyle
+        })}
+      >
         {children}
-      </div>
+      </CustomTag>
     );
   }
 }
@@ -164,6 +182,7 @@ Animated.propTypes = {
   animationInDuration: number,
   animationOutDuration: number,
   className: string,
+  tagName: string,
   style: object,
   innerRef: func
 };
@@ -178,5 +197,6 @@ Animated.defaultProps = {
   animationInDuration: 1000,
   animationOutDuration: 1000,
   className: "",
+  tagName: "div",
   style: {}
 };
